@@ -1,6 +1,6 @@
 import discord
 from discord import ui, app_commands
-import default
+import default, log
 
 
 settings = default.Settings("settings.json")
@@ -38,6 +38,8 @@ class client(discord.Client):
 
 
 if __name__ == "__main__":
+    log.Log()
+
     aclient = client()
     tree = app_commands.CommandTree(aclient)
 
@@ -46,5 +48,7 @@ if __name__ == "__main__":
     for guild_id in settings["guilds"]:
         default_commands.load(tree, guild_id)
         group_commands.load(tree, guild_id)
+
+    log.Log.log("Loaded Commands")
 
     aclient.run(default.load_token("token"))

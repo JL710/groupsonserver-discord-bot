@@ -1,4 +1,5 @@
 import functools
+import inspect
 import time, datetime
 
 
@@ -26,7 +27,7 @@ class Log:
             if Log.__file_name == "":
                 raise RuntimeError("SetupError: Log not properly setup!")
 
-            log_message = f"[{now.strftime('%Y.%m.%d-%H:%M:%S')}{message}]"
+            log_message = f"[{now.strftime('%Y.%m.%d-%H:%M:%S')}]{message}"
 
             with open(Log.__file_name, "a+") as f:
                 f.write(log_message)
@@ -44,10 +45,10 @@ class Log:
 
     def log_command(func):
         @functools.wraps(func)
-        def wrapped_func(**kwargs):
+        async def wrapped_func(**kwargs):
             try:
                 Log.log(func.__name__, kwargs[0].user.id)
-                return func(**kwargs)
+                await func(**kwargs)
             except Exception as e:
                 Log.log(e)
         return wrapped_func
