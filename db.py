@@ -15,6 +15,7 @@ if __name__ == "__main__":
         db = get_db(settings["database"])
         db.executescript("""
         DROP TABLE IF EXISTS groups;
+        
         CREATE TABLE groups (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,

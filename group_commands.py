@@ -3,6 +3,28 @@ from db import get_db
 from default import Settings
 
 
+async def remove_user(users, interaction, db):
+    if len(users) == 1:
+        # remove from db
+        db.execute("DELETE FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id))
+        db.commit()
+
+        # delete channel
+        await interaction.channel.delete()
+
+    else:
+        # remove just the user
+        await interaction.channel.set_permissions(interaction.user, overwrite=None)
+
+        # check if user is group_owner and change if so
+        if not db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=? AND owner_id=?", 
+        (interaction.channel_id, interaction.guild_id, interaction.user.id)).fetchone() == None:
+            for user in users:
+                if user.id != interaction.user.id:
+                    db.execute("UPDATE groups SET owner_id = ? WHERE owner_id = ?", (user.id, interaction.user.id))
+                    db.commit()
+
+
 def load(tree, guild_id):
 
     class CreateModal(discord.ui.Modal, title="Create Group"):
@@ -91,6 +113,15 @@ def load(tree, guild_id):
             else:
                 # remove just the user
                 await interaction.channel.set_permissions(interaction.user, overwrite=None)
+
+                # check if user is group_owner and change if so
+                if not db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=? AND owner_id=?", 
+                (interaction.channel_id, interaction.guild_id, interaction.user.id)).fetchone() == None:
+                    for user in users:
+                        if user.id != interaction.user.id:
+                            db.execute("UPDATE groups SET owner_id = ? WHERE owner_id = ?", (user.id, interaction.user.id))
+                            db.commit()
+
         db.close()
             
     @tree.command(guild=discord.Object(id=guild_id), name="group_kick", description="Kicks out of a Group")
@@ -115,4 +146,9 @@ def load(tree, guild_id):
                     # remove just the user
                     await interaction.channel.set_permissions(user, overwrite=None)
 
+                await interaction.response.send(embed=discord.Embed(title="Succes", description=f"Succesfully removed {user}!"))
+
+            await interaction.response.send(embed=default.error_embed("Error", "You do not have the Permission for that!"))
+        
         db.close()
+
