@@ -1,8 +1,6 @@
-from code import interact
 import default, discord
 from db import get_db
 from default import Settings
-import typing
 
 
 def load(tree, guild_id):
