@@ -3,7 +3,8 @@ from db import get_db
 from default import Settings
 
 
-async def remove_user(users, interaction, db):
+async def remove_user(interaction, db, user_to_kick):
+    users = [x for x in interaction.channel.overwrites if type(x) == discord.member.Member]
     if len(users) == 1:
         # remove from db
         db.execute("DELETE FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id))
@@ -14,14 +15,14 @@ async def remove_user(users, interaction, db):
 
     else:
         # remove just the user
-        await interaction.channel.set_permissions(interaction.user, overwrite=None)
+        await interaction.channel.set_permissions(user_to_kick, overwrite=None)
 
         # check if user is group_owner and change if so
         if not db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=? AND owner_id=?", 
-        (interaction.channel_id, interaction.guild_id, interaction.user.id)).fetchone() == None:
+        (interaction.channel_id, interaction.guild_id, user_to_kick.id)).fetchone() == None:
             for user in users:
-                if user.id != interaction.user.id:
-                    db.execute("UPDATE groups SET owner_id = ? WHERE owner_id = ?", (user.id, interaction.user.id))
+                if user.id != user_to_kick.id:
+                    db.execute("UPDATE groups SET owner_id = ? WHERE owner_id = ?", (user.id, user_to_kick.id))
                     db.commit()
 
 
@@ -88,7 +89,7 @@ def load(tree, guild_id):
             await interaction.response.send_message(ephemeral=True, embed=default.error_embed("Error", "This channel isnt a Group"))
         else:
             if user.id in [x.id for x in interaction.channel.overwrites]:
-                await interaction.response.send_message(default.error_embed("Error", "Useris already added"))
+                await interaction.response.send_message(embed=default.error_embed("Error", "Useris already added"))
             else:
                 await interaction.channel.set_permissions(user, view_channel=True)
                 await interaction.response.send_message(embed=discord.Embed(title="Succes", description=f"Succesfully added {user}!"))
@@ -101,26 +102,8 @@ def load(tree, guild_id):
         if db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id)).fetchone() == None:
             await interaction.response.send_message(ephemeral=True, embed=default.error_embed("Error", "This channel isnt a Group"))
         else:
-            users = [x for x in interaction.channel.overwrites if type(x) == discord.member.Member]
-            if len(users) == 1:
-                # remove from db
-                db.execute("DELETE FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id))
-                db.commit()
-
-                # delete channel
-                await interaction.channel.delete()
-
-            else:
-                # remove just the user
-                await interaction.channel.set_permissions(interaction.user, overwrite=None)
-
-                # check if user is group_owner and change if so
-                if not db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=? AND owner_id=?", 
-                (interaction.channel_id, interaction.guild_id, interaction.user.id)).fetchone() == None:
-                    for user in users:
-                        if user.id != interaction.user.id:
-                            db.execute("UPDATE groups SET owner_id = ? WHERE owner_id = ?", (user.id, interaction.user.id))
-                            db.commit()
+            await remove_user(interaction, db, interaction.user)
+            await interaction.response.send_message(ephemeral=True, embed=discord.Embed(title="Succes", description=f"Succesfully leaved!"))
 
         db.close()
             
@@ -133,22 +116,10 @@ def load(tree, guild_id):
         else:
             if db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=? AND owner_id=?", (interaction.channel_id, interaction.guild_id, interaction.user.id)).fetchone() == None or \
                 interaction.user.guild_permissions.move_members:
-                users = [x for x in interaction.channel.overwrites if type(x) == discord.member.Member]
-                if len(users) == 1:
-                    # remove from db
-                    db.execute("DELETE FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id))
-                    db.commit()
-
-                    # delete channel
-                    await interaction.channel.delete()
-
-                else:
-                    # remove just the user
-                    await interaction.channel.set_permissions(user, overwrite=None)
-
-                await interaction.response.send(embed=discord.Embed(title="Succes", description=f"Succesfully removed {user}!"))
-
-            await interaction.response.send(embed=default.error_embed("Error", "You do not have the Permission for that!"))
+                await remove_user(interaction, db, user)
+                await interaction.response.send_message(ephemeral=True, embed=discord.Embed(title="Succes", description=f"Succesfully removed {user}!"))
+            else:
+                await interaction.response.send_message(embed=default.error_embed("Error", "You do not have the Permission for that!"))
         
         db.close()
 
