@@ -48,7 +48,7 @@ class Log:
         async def wrapped_func(**kwargs):
             try:
                 Log.log(func.__name__, kwargs[0].user.id)
-                await func(**kwargs)
+                return await func(**kwargs)
             except Exception as e:
                 Log.log(e)
         return wrapped_func
