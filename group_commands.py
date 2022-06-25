@@ -26,7 +26,7 @@ async def remove_user(interaction, db, user_to_kick):
                     db.commit()
 
 
-def load(tree, guild_id):
+def load(tree):
 
     class CreateModal(discord.ui.Modal, title="Create Group"):
         def __init__(self, db_path):
@@ -76,12 +76,12 @@ def load(tree, guild_id):
             # close db
             db.close()
 
-    @tree.command(guild=discord.Object(id=guild_id), name="group_create", description="Create a group chat on the Server.")
+    @tree.command(name="group_create", description="Create a group chat on the Server.")
     async def create(interaction: discord.Interaction):
         settings = Settings("settings.json")
         await interaction.response.send_modal(CreateModal(settings["database"]))
 
-    @tree.command(guild=discord.Object(id=guild_id), name="group_invite", description="Invite someone into Group")
+    @tree.command(name="group_invite", description="Invite someone into Group")
     async def invite(interaction: discord.Interaction, user: discord.Member):
         settings = Settings("settings.json")
         db = get_db(settings["database"])
@@ -95,7 +95,7 @@ def load(tree, guild_id):
                 await interaction.response.send_message(embed=discord.Embed(title="Succes", description=f"Succesfully added {user}!"))
         db.close()
     
-    @tree.command(guild=discord.Object(id=guild_id), name="group_leave", description="Leaves Group")
+    @tree.command(name="group_leave", description="Leaves Group")
     async def leave(interaction: discord.Interaction):
         settings = Settings("settings.json")
         db = get_db(settings["database"])
@@ -107,7 +107,7 @@ def load(tree, guild_id):
 
         db.close()
             
-    @tree.command(guild=discord.Object(id=guild_id), name="group_kick", description="Kicks out of a Group")
+    @tree.command(name="group_kick", description="Kicks out of a Group")
     async def kick(interaction: discord.Interaction, user: discord.Member):
         settings = Settings("settings.json")
         db = get_db(settings["database"])
