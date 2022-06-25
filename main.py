@@ -51,9 +51,10 @@ if __name__ == "__main__":
     settings = default.Settings("settings.json")
 
     # check dirs
-    default.create_dir(settings["log"])
+    default.create_dir(settings["log-dir"])
+    default.create_dir(settings["data-dir"])
 
-    log.Log(settings["log"])
+    log.Log(settings["log-dir"])
 
     aclient = client()
     tree = CommandTree(aclient)
