@@ -28,5 +28,5 @@ TOKEN HERE
 
 ## running
 ```
-docker run -d -v ./settings:/bot/settings -v ./log:/bot/log -v ./data:/bot/data groupbot
+docker run -d -v ./settings:/bot/settings -v ./log:/bot/log -v ./data:/bot/data --restart unless-stopped groupbot
 ```
