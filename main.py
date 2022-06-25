@@ -1,9 +1,6 @@
 import discord
 from discord import ui, app_commands
-import default, log
-
-
-settings = default.Settings("settings.json")
+import default, log, sys
 
 
 class client(discord.Client):
@@ -36,13 +33,30 @@ class client(discord.Client):
                     user = await self.fetch_user(user_id)
                     await user.send(embed=embed)
 
+    async def on_interaction(self, interaction: discord.Interaction):
+        print("interaction")
+        log.Log.log(f"[{interaction.user}][{interaction.user.id}][{interaction.channel}][{interaction.channel.id}]{interaction.message}")
+
+
+class CommandTree(app_commands.CommandTree):
+    def __init__(self, client):
+        super().__init__(client)
+
+    async def on_error(self, interaction, error):
+        print(error)
+        log.Log.log(f"[{interaction.user}][{interaction.user.id}][{interaction.channel}][{interaction.channel.id}]{interaction.message}:{error}")
+
 
 if __name__ == "__main__":
-    log.Log()
+    settings = default.Settings("settings.json")
+
+    # check dirs
+    default.create_dir(settings["log"])
+
+    log.Log(settings["log"])
 
     aclient = client()
-    tree = app_commands.CommandTree(aclient)
-
+    tree = CommandTree(aclient)
 
     import default_commands, group_commands
     for guild_id in settings["guilds"]:
@@ -52,3 +66,4 @@ if __name__ == "__main__":
     log.Log.log("Loaded Commands")
 
     aclient.run(default.load_token("token"))
+
