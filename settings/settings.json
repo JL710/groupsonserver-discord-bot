@@ -2,7 +2,7 @@
     "log-dir": "log",
     "data-dir": "data",
     "database": "data/database.db",
-    "dm_endpoint_users": [398440299627544577],
+    "dm_endpoint_users": [],
     "default-category": "Groups",
     "custom-categorys": {}
 }
