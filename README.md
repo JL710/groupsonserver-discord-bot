@@ -28,5 +28,5 @@ TOKEN HERE
 
 ## running
 ```
-docker run -d -v /mnt/e/temp/bottest/settings:/bot/settings -v /mnt/e/temp/bottest/log:/bot/log -v /mnt/e/temp/bottest/data:/bot/data groupbot
+docker run -d -v YOUTPATH:/bot/settings -v YOURPATH:/bot/log -v YOURPATH:/bot/data groupbot
 ```
