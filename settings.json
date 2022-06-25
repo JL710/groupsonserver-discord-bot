@@ -1,4 +1,5 @@
 {
+    "log-dir": "log",
     "database": "database.db",
     "dm_endpoint_users": [398440299627544577],
     "guilds": [766312417197162567],
