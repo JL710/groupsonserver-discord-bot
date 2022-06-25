@@ -13,8 +13,7 @@ class client(discord.Client):
     async def on_ready(self):
         await self.wait_until_ready()
         if not self.synced:  # check if slash commands have been synced
-            for guild_id in settings["guilds"]:
-                await tree.sync(guild = discord.Object(id=guild_id))  # guild specific: leave blank if global (global registration can take 1-24 hours) -> the id of the server
+            await tree.sync()  # sync commands
             self.synced = True
         print(f"We have logged in as {self.user}.")
 
@@ -48,7 +47,7 @@ class CommandTree(app_commands.CommandTree):
 
 
 if __name__ == "__main__":
-    settings = default.Settings("settings.json")
+    settings = default.Settings("settings/settings.json")
 
     # check dirs
     default.create_dir(settings["log-dir"])
@@ -60,11 +59,10 @@ if __name__ == "__main__":
     tree = CommandTree(aclient)
 
     import default_commands, group_commands
-    for guild_id in settings["guilds"]:
-        default_commands.load(tree, guild_id)
-        group_commands.load(tree, guild_id)
+    default_commands.load(tree)
+    group_commands.load(tree)
 
     log.Log.log("Loaded Commands")
 
-    aclient.run(default.load_token("token"))
+    aclient.run(default.load_token("settings/token"))
 
