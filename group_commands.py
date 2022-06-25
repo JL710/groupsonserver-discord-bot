@@ -77,11 +77,13 @@ def load(tree):
             db.close()
 
     @tree.command(name="group_create", description="Create a group chat on the Server.")
+    @discord.app_commands.checks.cooldown(1, 120, key=lambda i: i.user.id)
     async def create(interaction: discord.Interaction):
         settings = Settings("settings.json")
         await interaction.response.send_modal(CreateModal(settings["database"]))
 
     @tree.command(name="group_invite", description="Invite someone into Group")
+    @discord.app_commands.checks.cooldown(60, 60, key=lambda i: i.user.id)
     async def invite(interaction: discord.Interaction, user: discord.Member):
         settings = Settings("settings.json")
         db = get_db(settings["database"])
@@ -96,6 +98,7 @@ def load(tree):
         db.close()
     
     @tree.command(name="group_leave", description="Leaves Group")
+    @discord.app_commands.checks.cooldown(30, 60, key=lambda i: i.user.id)
     async def leave(interaction: discord.Interaction):
         settings = Settings("settings.json")
         db = get_db(settings["database"])
@@ -108,6 +111,7 @@ def load(tree):
         db.close()
             
     @tree.command(name="group_kick", description="Kicks out of a Group")
+    @discord.app_commands.checks.cooldown(3, 1, key=lambda i: i.user.id)
     async def kick(interaction: discord.Interaction, user: discord.Member):
         settings = Settings("settings.json")
         db = get_db(settings["database"])

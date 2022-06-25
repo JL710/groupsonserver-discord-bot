@@ -45,6 +45,10 @@ class CommandTree(app_commands.CommandTree):
         print(error)
         log.Log.log(f"[{interaction.user}][{interaction.user.id}][{interaction.channel}][{interaction.channel.id}]{interaction.message}:{error}")
 
+        if isinstance(error, discord.app_commands.CommandOnCooldown):
+            print("cooldown")
+            await interaction.response.send_message(embed=default.error_embed("Error", "You are on cooldown!"))
+
 
 if __name__ == "__main__":
     settings = default.Settings("settings/settings.json")
