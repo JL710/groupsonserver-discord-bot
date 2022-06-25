@@ -1,6 +1,5 @@
 import functools
-import inspect
-import time, datetime
+import datetime
 
 
 class Log:
@@ -8,15 +7,15 @@ class Log:
     __file_name = ""
     __active = True
     
-    def __init__(self, path="", active=True) -> None:
+    def __init__(self, dir="", active=True) -> None:
         Log.__active = active
 
         if Log.__active:
             now = datetime.datetime.now()
             
-            Log.__file_name = now.strftime("%Y-%m-%d_%H-%M-%S")
+            Log.__file_name = dir + "/" + now.strftime("%Y-%m-%d_%H-%M-%S")
 
-            with open(f"{path}{Log.__file_name}", 'a+') as f:
+            with open(f"{Log.__file_name}", 'a+') as f:
                 f.write(f"Created Log: {Log.__file_name}")
                 f.write("\n")
 
@@ -29,7 +28,7 @@ class Log:
 
             log_message = f"[{now.strftime('%Y.%m.%d-%H:%M:%S')}]{message}"
 
-            with open(Log.__file_name, "a+") as f:
+            with open(f"{Log.__file_name}", "a+") as f:
                 f.write(log_message)
                 f.write("\n")
 
