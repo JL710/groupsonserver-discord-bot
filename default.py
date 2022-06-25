@@ -76,3 +76,8 @@ def load_token(path: str):
 
 def error_embed(title: str, message: str):
     return discord.Embed(title=title, description=message, color=discord.Color.from_rgb(255, 0, 0))
+
+
+def create_dir(path: str):
+    if not os.path.exists(path):
+        os.makedirs(path)
