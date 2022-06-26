@@ -15,4 +15,6 @@ ADD main.py /bot/main.py
 
 WORKDIR /bot
 
+EXPOSE 443
+
 CMD ["python3", "/bot/main.py"]
