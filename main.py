@@ -33,8 +33,8 @@ class client(discord.Client):
                     await user.send(embed=embed)
 
     async def on_interaction(self, interaction: discord.Interaction):
-        print("interaction")
-        log.Log.log(f"[{interaction.user}][{interaction.user.id}][{interaction.channel}][{interaction.channel.id}]{interaction.message}")
+        print(f"[guild={interaction.guild_id}][user={interaction.user}][user_id={interaction.user.id}][channel={interaction.channel}][channel_id={interaction.channel.id}]{interaction.command.name}")
+        log.Log.log(f"[guild={interaction.guild_id}][user={interaction.user}][user_id={interaction.user.id}][channel={interaction.channel}][channel_id={interaction.channel.id}]{interaction.command.name}")
 
 
 class CommandTree(app_commands.CommandTree):
@@ -42,12 +42,12 @@ class CommandTree(app_commands.CommandTree):
         super().__init__(client)
 
     async def on_error(self, interaction, error):
-        print(error)
-        log.Log.log(f"[{interaction.user}][{interaction.user.id}][{interaction.channel}][{interaction.channel.id}]{interaction.message}:{error}")
+        print(f"[guild={interaction.guild_id}][user={interaction.user}][user_id={interaction.user.id}][channel={interaction.channel}][channel_id={interaction.channel.id}]{interaction.command.name}")
+        log.Log.log(f"[guild={interaction.guild_id}][user={interaction.user}][user_id={interaction.user.id}][channel={interaction.channel}][channel_id={interaction.channel.id}]{interaction.command.name}")
 
         if isinstance(error, discord.app_commands.CommandOnCooldown):
             print("cooldown")
-            await interaction.response.send_message(embed=default.error_embed("Error", "You are on cooldown!"))
+            await interaction.response.send_message(ephemeral=True, embed=default.error_embed("Error", "You are on cooldown!"))
 
 
 if __name__ == "__main__":
