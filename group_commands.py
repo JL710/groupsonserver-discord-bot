@@ -45,7 +45,7 @@ def load(tree):
             db = get_db(self.__db_path)
             if db.execute("SELECT * FROM groups WHERE name=? AND guild_id=?", (str(self.name).lower(), interaction.guild_id)).fetchone() == None and \
                 not any([True if x.name.lower() == str(self.name).lower() else False for x in interaction.guild.channels]):
-                settings = Settings("settings.json")
+                settings = Settings("settings/settings.json")
                 # get category name
                 category_name = settings["default-category"] if not interaction.guild_id in settings["custom-categorys"] else settings["custom-categorys"][interaction.guild_id]
                 
@@ -79,18 +79,18 @@ def load(tree):
     @tree.command(name="group_create", description="Create a group chat on the Server.")
     @discord.app_commands.checks.cooldown(1, 120, key=lambda i: i.user.id)
     async def create(interaction: discord.Interaction):
-        settings = Settings("settings.json")
+        settings = Settings("settings/settings.json")
         await interaction.response.send_modal(CreateModal(settings["database"]))
 
     @tree.command(name="group_invite", description="Invite someone into Group")
     @discord.app_commands.checks.cooldown(60, 60, key=lambda i: i.user.id)
     async def invite(interaction: discord.Interaction, user: discord.Member):
-        settings = Settings("settings.json")
+        settings = Settings("settings/settings.json")
         db = get_db(settings["database"])
         if db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id)).fetchone() == None:
             await interaction.response.send_message(ephemeral=True, embed=default.error_embed("Error", "This channel isnt a Group"))
         else:
-            if user.id in [x.id for x in interaction.channel.overwrites]:
+            if user.id in [x.id for x in interaction.channel.overwrites] or user.bot == True:
                 await interaction.response.send_message(embed=default.error_embed("Error", "Useris already added"))
             else:
                 await interaction.channel.set_permissions(user, view_channel=True)
@@ -100,7 +100,7 @@ def load(tree):
     @tree.command(name="group_leave", description="Leaves Group")
     @discord.app_commands.checks.cooldown(30, 60, key=lambda i: i.user.id)
     async def leave(interaction: discord.Interaction):
-        settings = Settings("settings.json")
+        settings = Settings("settings/settings.json")
         db = get_db(settings["database"])
         if db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id)).fetchone() == None:
             await interaction.response.send_message(ephemeral=True, embed=default.error_embed("Error", "This channel isnt a Group"))
@@ -113,7 +113,7 @@ def load(tree):
     @tree.command(name="group_kick", description="Kicks out of a Group")
     @discord.app_commands.checks.cooldown(3, 1, key=lambda i: i.user.id)
     async def kick(interaction: discord.Interaction, user: discord.Member):
-        settings = Settings("settings.json")
+        settings = Settings("settings/settings.json")
         db = get_db(settings["database"])
         if db.execute("SELECT * FROM groups WHERE discord_id=? AND guild_id=?", (interaction.channel_id, interaction.guild_id)).fetchone() == None:
             await interaction.response.send_message(ephemeral=True, embed=default.error_embed("Error", "This channel isnt a Group"))

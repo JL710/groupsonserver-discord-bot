@@ -11,7 +11,7 @@ def get_db(path: str):
 
 if __name__ == "__main__":
     if sys.argv[1] == "reset":
-        settings = default.Settings("settings.json")
+        settings = default.Settings("settings/settings.json")
         db = get_db(settings["database"])
         db.executescript("""
         DROP TABLE IF EXISTS groups;
